@@ -28,6 +28,15 @@ public:
 		}
 	}
 	bool isFeasible(const Screw &disp) const;
+	bool isSingular() const {
+		return (singular.empty());
+	}
+	// 
+	void SetNonSingularTranslationMatrix(Eigen::MatrixXd &dest) const;
+	void SetNonSingularMatrix(Eigen::MatrixXd &dest) const;
+	// 
+	void SetRestrictedTranslationMatrix(Eigen::MatrixXd &dest) const;
+	void SetRestrictedMatrix(Eigen::MatrixXd &dest) const;
 	//
 	static Screw Translation(const Eigen::Vector3d &dic);
 	static Screw Rotation(const Eigen::Vector3d &axis, const Eigen::Vector3d &center, double trans_rot_ratio = 0.0);

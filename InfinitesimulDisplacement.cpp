@@ -121,3 +121,57 @@ std::ostream& operator<<(std::ostream &os, const InfinitesimulDisplacement &src)
 	}
 	return os;
 }
+
+void InfinitesimulDisplacement::SetNonSingularTranslationMatrix(Eigen::MatrixXd &dest) const
+{
+	dest = Eigen::MatrixXd(non_singular.size(), 3);
+	for (int r(0); r < dest.rows(); ++r) {
+		dest.row(r) = non_singular[r].block(3, 0, 3, 1).transpose();
+	}
+}
+
+void InfinitesimulDisplacement::SetNonSingularMatrix(Eigen::MatrixXd &dest) const
+{
+	dest = Eigen::MatrixXd(non_singular.size(), 6);
+	for (int r(0); r < dest.rows(); ++r) {
+		dest.row(r) = non_singular[r].transpose();
+	}
+}
+
+void InfinitesimulDisplacement::SetRestrictedTranslationMatrix(Eigen::MatrixXd &dest) const
+{
+	// count 
+	int r = non_singular.size();
+	for (size_t i(0); i < singular.size(); ++i) {
+		r += singular[i].size();
+	}
+	dest = Eigen::MatrixXd(r, 3);
+	r = 0;
+	for (size_t i(0); i < non_singular.size(); ++i, ++r) {
+		dest.row(r) = non_singular[i].block(3, 0, 3, 1).transpose();
+	}
+	for (size_t i(0); i < singular.size(); ++i) {
+		for (size_t j(0); j < singular[i].size(); ++j, ++r) {
+			dest.row(r) = singular[i][j].block(3, 0, 3, 1).transpose();
+		}
+	}
+}
+
+void InfinitesimulDisplacement::SetRestrictedMatrix(Eigen::MatrixXd &dest) const
+{
+	// count 
+	int r = non_singular.size();
+	for (size_t i(0); i < singular.size(); ++i) {
+		r += singular[i].size();
+	}
+	dest = Eigen::MatrixXd(r, 6);
+	r = 0;
+	for (size_t i(0); i < non_singular.size(); ++i, ++r) {
+		dest.row(r) = non_singular[i].transpose();
+	}
+	for (size_t i(0); i < singular.size(); ++i) {
+		for (size_t j(0); j < singular[i].size(); ++j, ++r) {
+			dest.row(r) = singular[i][j].transpose();
+		}
+	}
+}

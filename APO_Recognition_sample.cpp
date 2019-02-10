@@ -1,6 +1,7 @@
 // APO_Recognition_sample.cpp
 
 #include "InfinitesimulDisplacement.h"
+#include "DisplacementIndex.h"
 
 // parameters
 const size_t O1 = 0;
@@ -35,5 +36,10 @@ int main(int argc, char **argv)
 	std::cout << "Rotion X around (0, 1, 0): " << answer(i_disp.isFeasible(InfinitesimulDisplacement::Rotation(Eigen::Vector3d::UnitX(), Eigen::Vector3d::UnitY()))) << std::endl;
 	std::cout << "Rotion X around (0, -1, 0): " << answer(i_disp.isFeasible(InfinitesimulDisplacement::Rotation(Eigen::Vector3d::UnitX(), -Eigen::Vector3d::UnitY()))) << std::endl;
 	std::cout << "Rotion Z around (0, 0, 0): " << answer(i_disp.isFeasible(InfinitesimulDisplacement::Rotation(Eigen::Vector3d::UnitZ(), Eigen::Vector3d::Zero()))) << std::endl;
+	//
+	DisplacementIndex ind;
+	ind.Calculate(i_disp);
+	std::cout << "Indices of displacement" << std::endl;
+	std::cout << ind << std::endl;
 	return 0;
 }

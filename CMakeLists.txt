@@ -26,6 +26,12 @@ ADD_EXECUTABLE(
 	ContactState.h
 	InfinitesimulDisplacement.cpp
 	InfinitesimulDisplacement.h
+	DisplacementIndex.cpp
+	DisplacementIndex.h
+	${PCC_PATH}/PCCCalculator.cpp
+	${PCC_PATH}/PCCCalculator.h
+	${PCC_PATH}/Combination.cpp
+	${PCC_PATH}/Combination.h
 )
 
-TARGET_LINK_LIBRARIES(APO_Recognition_sample)	
+TARGET_LINK_LIBRARIES(APO_Recognition_sample qhullstatic.lib qhullstatic_r.lib)	
