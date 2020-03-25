@@ -312,12 +312,14 @@ void VisionErrorCorrector::ReduceSecondOrderEffect(Shape &moving_object, Shape &
 	for (size_t i(0); i < c_state.size(); ++i) {
 		SetEquation(moving_object, fixed_object, c_state[i]);
 	}
+#if 0
 	std::ofstream ofs("debug_matrix.txt");
 	for (size_t i(0); i < eq.size(); ++i) {
 		ofs << eq[i].elm[0] << " " << eq[i].elm[1] << " " << eq[i].elm[2] << " " << eq[i].elm[3] << " "
 			<< eq[i].elm[4] << " " << eq[i].elm[5] << " : " << eq[i].elm[6] << std::endl;
 	}
 	ofs.close();
+#endif
 	Eigen::Vector3d dt;
 	SolveEquation(dt);
 	moving_object.SetTransformation(moving_object.Rot(), moving_object.Trans() + dt);

@@ -5,7 +5,7 @@
 #include "Shape.h"
 #include "ContactElement.h"
 
-#define _VC_DEBUG_MODE
+// #define _VC_DEBUG_MODE
 
 class VisionErrorCorrector
 {
