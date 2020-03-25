@@ -6,8 +6,8 @@ void InfinitesimulDisplacement::Calculate(size_t objectID, const ContactElement 
 {
 	Eigen::MatrixXd n1, n2;
 	ScrewVector tmp;
-	if (src.FirstObject() == objectID) {
-		switch (src.Type()) {
+	if (src.FirstElement().first == objectID) {
+		switch (src.ContactType()) {
 		case ContactElement::_VE_CONTACT:
 			tmp.push_back(Coefficient(src.ContactPosition(), src.OuterNormal(0)));
 			tmp.push_back(Coefficient(src.ContactPosition(), src.OuterNormal(1)));
@@ -28,8 +28,8 @@ void InfinitesimulDisplacement::Calculate(size_t objectID, const ContactElement 
 			break;
 		}
 	}
-	if (src.SecondObject() == objectID) {
-		switch (src.Type()) {
+	if (src.SecondElement().first == objectID) {
+		switch (src.ContactType()) {
 		case ContactElement::_VE_CONTACT:
 			tmp.push_back(Coefficient(src.ContactPosition(), -src.OuterNormal(0)));
 			tmp.push_back(Coefficient(src.ContactPosition(), -src.OuterNormal(1)));
@@ -141,7 +141,7 @@ void InfinitesimulDisplacement::SetNonSingularMatrix(Eigen::MatrixXd &dest) cons
 void InfinitesimulDisplacement::SetRestrictedTranslationMatrix(Eigen::MatrixXd &dest) const
 {
 	// count 
-	int r = non_singular.size();
+	size_t r = non_singular.size();
 	for (size_t i(0); i < singular.size(); ++i) {
 		r += singular[i].size();
 	}
@@ -160,7 +160,7 @@ void InfinitesimulDisplacement::SetRestrictedTranslationMatrix(Eigen::MatrixXd &
 void InfinitesimulDisplacement::SetRestrictedMatrix(Eigen::MatrixXd &dest) const
 {
 	// count 
-	int r = non_singular.size();
+	size_t r = non_singular.size();
 	for (size_t i(0); i < singular.size(); ++i) {
 		r += singular[i].size();
 	}

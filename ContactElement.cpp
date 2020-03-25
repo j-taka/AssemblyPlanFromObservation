@@ -2,6 +2,26 @@
 
 #include "ContactElement.h"
 
+std::ostream& operator<<(std::ostream &ofs, const ContactElementForErrorCorrection &src)
+{
+	switch (src.type) {
+	case ContactElementBase::_VF_CONTACT:
+		ofs << "v-f contact:";
+		break;
+	case ContactElementBase::_EE_CONTACT:
+		ofs << "e-e contact: ";
+		break;
+	case ContactElementBase::_VE_CONTACT:
+		ofs << "v-e contact: ";
+		break;
+	case ContactElementBase::_VV_CONTACT:
+		ofs << "v-v contact: ";
+		break;
+	}
+	ofs << "(" << src.ID1.first << "," << src.ID1.second << ") - (" << src.ID2.first << "," << src.ID2.second << ") (distance: " << src.distance << ")";
+	return ofs;
+}
+
 ContactElement ContactElement::VFContact(const std::pair<size_t, size_t> &ID1, const std::pair<size_t, size_t> &ID2, const Eigen::Vector3d &contact_position, const Eigen::Vector3d &f_norm)
 {
 	ContactElement res;

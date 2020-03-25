@@ -5,42 +5,54 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-class ContactElement
+class ContactElementBase
 {
 public:
 	enum Type {
-		_VF_CONTACT, 
-		_EE_CONTACT, 
-		_VE_CONTACT, 
-		_VV_CONTACT 
+		_VF_CONTACT,
+		_EE_CONTACT,
+		_VE_CONTACT,
+		_VV_CONTACT
 	};
-	typedef std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d> > Normals;
-private:
+protected:
 	std::pair<size_t, size_t> ID1;
 	std::pair<size_t, size_t> ID2;
 	Type type;
-	std::vector<double> parameters;
 public:
 	// constructor (no action)
-	ContactElement(){}
+	ContactElementBase() {}
 	// copy constructor
-	ContactElement(const ContactElement &src) {
+	ContactElementBase(const ContactElementBase &src) {
 		ID1 = src.ID1;
 		ID2 = src.ID2;
 		type = src.type;
-		parameters = src.parameters;
 	}
-	size_t FirstObject() const {
-		return ID1.first;
+	const std::pair<size_t, size_t>& FirstElement() const {
+		return ID1;
 	}
-	size_t SecondObject() const {
-		return ID2.first;
+	const std::pair<size_t, size_t>& SecondElement() const {
+		return ID2;
 	}
-	Type Type() const {
+	Type ContactType() const {
 		return type;
 	}
 	bool isSingular() const {
 		return (type == _VE_CONTACT || type == _VV_CONTACT);
+	}
+};
+
+class ContactElement : public ContactElementBase
+{
+public:
+	typedef std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d> > Normals;
+private:
+	std::vector<double> parameters;
+public:
+	// constructor
+	ContactElement() : ContactElementBase() {}
+	// copy constructor
+	ContactElement(const ContactElement &src) : ContactElementBase(src) {
+		parameters = src.parameters;
 	}
 	Eigen::Vector3d ContactPosition() const {
 		return Eigen::Vector3d(parameters[0], parameters[1], parameters[2]);
@@ -74,4 +86,25 @@ public:
 	static ContactElement VEContact(const std::pair<size_t, size_t> &ID1, const std::pair<size_t, size_t> &ID2, const Eigen::Vector3d &contact_position, const Eigen::Vector3d &norm1, const Eigen::Vector3d &norm2);
 	static ContactElement VVContact(const std::pair<size_t, size_t> &ID1, const std::pair<size_t, size_t> &ID2, const Eigen::Vector3d &contact_position, const Normals &norm1, const Normals &norm2);
 	friend std::ostream& operator<<(std::ostream &os, const ContactElement &src);
+};
+
+class ContactElementForErrorCorrection : public ContactElementBase
+{
+private: 
+	double distance;
+public:
+	// constructor
+	ContactElementForErrorCorrection() : ContactElementBase() {}
+	// constructor
+	ContactElementForErrorCorrection(const std::pair<size_t, size_t> &_ID1, const std::pair<size_t, size_t> &_ID2, ContactElementBase::Type _type, double _distance) {
+		ID1 = _ID1;
+		ID2 = _ID2;
+		type = _type;
+		distance = _distance;
+	}
+	// copy constructor
+	ContactElementForErrorCorrection(const ContactElementForErrorCorrection &src) : ContactElementBase(src) {
+		distance = src.distance;
+	}
+	friend std::ostream& operator<<(std::ostream &ofs, const ContactElementForErrorCorrection &src);
 };
