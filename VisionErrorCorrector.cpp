@@ -6,13 +6,56 @@
 
 const double _NEARLY_ZERO = 1.0e-6;
 
-void VisionErrorCorrector::Calc(Shape &moving_object, Shape &fixed_object, const ContactState &c_state)
+void VisionErrorCorrector::FixFixedObject(PoseListFileHandler &plHandler)
 {
-	const double _MIN_TRANS_DIST = 10;
-	const int _MAX_LOOP = 40;
-	if (c_state.empty()) {
-		return; // nothing to do 
+	Eigen::Matrix3d fixR;
+	Eigen::Vector3d fixT;
+	plHandler.GetTransformation(fixR, fixT, 0, 1);
+	for (size_t i(1); i < plHandler.length(); ++i) {
+		Eigen::Matrix3d R;
+		Eigen::Vector3d t;
+		plHandler.GetTransformation(R, t, i, 1);
+		const Eigen::Matrix3d dR = fixR * R.transpose();
+		const Eigen::Vector3d dt = -fixR * R.transpose() * t + fixT;
+		Eigen::Matrix3d R2;
+		Eigen::Vector3d t2;
+		plHandler.GetTransformation(R2, t2, i, 0);
+		const Eigen::Matrix3d newR = dR * R2;
+		const Eigen::Vector3d newT = dR * t2 + dt;
+		plHandler.SetTransformation(newR, newT, i, 0);
+		plHandler.SetTransformation(fixR, fixT, i, 1);
 	}
+}
+
+bool VisionErrorCorrector::Calc(Shape &moving_object, Shape &fixed_object, ContactState &c_state)
+{
+	if (c_state.empty()) {
+		return true; // nothing to do 
+	}
+	const Eigen::Matrix3d initR = moving_object.Rot();
+	const Eigen::Vector3d initT = moving_object.Trans();
+	for (int i(0); i < _MAX_NUMBER_OF_REMOVE_ELEMENT; ++i) {
+		if (CalcEach(moving_object, fixed_object, c_state)) {
+			return true;
+		}
+		// remove furthest contact element
+		double max_dist = fabs(c_state[0].GetDistance());
+		size_t ID = 0;
+		for (size_t j(1); j < c_state.size(); ++j) {
+			if (max_dist < fabs(c_state[j].GetDistance())) {
+				max_dist = fabs(c_state[j].GetDistance());
+				ID = j;
+			}
+		}
+		std::cerr << "Remove " << c_state[ID] << std::endl;
+		c_state.erase(c_state.begin() + ID);
+		moving_object.SetTransformation(initR, initT);
+	}
+	return false;
+}
+
+bool VisionErrorCorrector::CalcEach(Shape &moving_object, Shape &fixed_object, const ContactState &c_state)
+{
 #ifdef _VC_DEBUG_MODE
 	convergence.clear();
 	Eigen::Matrix<double, 3, 4> pose;
@@ -27,20 +70,19 @@ void VisionErrorCorrector::Calc(Shape &moving_object, Shape &fixed_object, const
 	pose.block(0, 3, 3, 1) = moving_object.Trans();
 	convergence.push_back(pose);
 #endif
-	return;
 	for (int i(0); i < _MAX_LOOP; ++i) {
 		// center 
 		CalcCenter(moving_object, fixed_object, c_state);
 		double error(0);
 		for (size_t i(0); i < c_state.size(); ++i) {
-			error = std::max(error, SetEquation(moving_object, fixed_object, c_state[i]));
+			error = std::max(error, fabs(SetEquation(moving_object, fixed_object, c_state[i])));
 		}
 		if (verbose) {
 			std::cerr << "Loop " << i + 1 << " : " << error << std::endl;
 		}
 		if (error < tolerance) {
 			eq.clear();
-			break;
+			return true;
 		}
 		Eigen::Matrix3d dR;
 		Eigen::Vector3d dt;
@@ -82,6 +124,7 @@ void VisionErrorCorrector::Calc(Shape &moving_object, Shape &fixed_object, const
 #endif
 		}
 	}
+	return false;
 }
 
 void VisionErrorCorrector::CalcCenter(const Shape &moving_object, const Shape &fixed_object, const ContactState &c_state)
@@ -322,7 +365,9 @@ void VisionErrorCorrector::ReduceSecondOrderEffect(Shape &moving_object, Shape &
 #endif
 	Eigen::Vector3d dt;
 	SolveEquation(dt);
-	moving_object.SetTransformation(moving_object.Rot(), moving_object.Trans() + dt);
+	if (dt.norm() <= _MIN_TRANS_DIST) {
+		moving_object.SetTransformation(moving_object.Rot(), moving_object.Trans() + dt);
+	}
 }
 
 void VisionErrorCorrector::ReduceSecondOrderEffectVF(Shape &v_shape, Shape &f_shape, const size_t v1, const size_t f1, const size_t v2, const size_t f2, bool v_move)

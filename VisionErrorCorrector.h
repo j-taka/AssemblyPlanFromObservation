@@ -2,6 +2,7 @@
 
 #pragma once 
 
+#include "PoseListFileHandler.h"
 #include "Shape.h"
 #include "ContactElement.h"
 
@@ -19,6 +20,9 @@ private:
 	std::vector<Each> eq;
 	double tolerance;
 	Eigen::Vector3d center;
+	int _MAX_LOOP;
+	int _MAX_NUMBER_OF_REMOVE_ELEMENT;
+	double _MIN_TRANS_DIST;
 
 	bool verbose;
 #ifdef _VC_DEBUG_MODE
@@ -26,8 +30,8 @@ private:
 #endif
 public:
 	// constructor
-	VisionErrorCorrector() : tolerance(1.0e-5), verbose(false) {}
-	void Calc(Shape &moving_object, Shape &fixed_object, const ContactState &c_state);
+	VisionErrorCorrector() : tolerance(1.0e-5), verbose(false), _MAX_LOOP(40), _MAX_NUMBER_OF_REMOVE_ELEMENT(2), _MIN_TRANS_DIST(10) {}
+	bool Calc(Shape &moving_object, Shape &fixed_object, ContactState &c_state);
 	double CalculateMaximumError(const Shape &moving_object, const Shape &fixed_object, const ContactState &c_state);
 
 	void SetVerbose(bool src) {
@@ -38,7 +42,11 @@ public:
 		return convergence;
 	}
 #endif
+	static void FixFixedObject(PoseListFileHandler &plHandler);
+
 private:
+	bool CalcEach(Shape &moving_object, Shape &fixed_object, const ContactState &c_state);
+
 	void CalcCenter(const Shape &moving_object, const Shape &fixed_object, const ContactState &c_state);
 
 	double SetEquation(const Shape &moving_object, const Shape &fixed_object, const ContactElementForErrorCorrection &c_element);

@@ -106,5 +106,9 @@ public:
 	ContactElementForErrorCorrection(const ContactElementForErrorCorrection &src) : ContactElementBase(src) {
 		distance = src.distance;
 	}
+	// 
+	double GetDistance() const {
+		return distance;
+	}
 	friend std::ostream& operator<<(std::ostream &ofs, const ContactElementForErrorCorrection &src);
 };
