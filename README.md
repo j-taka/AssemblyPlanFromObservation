@@ -10,15 +10,18 @@ Currently, I implemented to
 ## Requirement
 - CMake
 - Polyhedral Convex Cones (https://github.com/j-taka/PolyhedralConvexCones) and its dependencies
+- [OpenCascade](https://www.opencascade.com/)
+- [Qt](https://www.qt.io/)
 
 ## Compile
 1. Download all requirements
 2. Compile Polyhedral Convex Cones
-3. Change PCC_PATH in CMakeList.txt correctly
+3. Change file passes in CMakeList.txt correctly
 4. Use cmake to compile the program
 
 ## Test
-just run APO_Recognition_sample.exe
+run APO_Recognition_sample.exe (calculate motion DOFs)
+run VisionErrorCorrection.exe error_correct.pose.list peg_in_hole.pose.list (vision error correction)
 
 ## Author
 Jun Takamatsu j-taka@is.naist.jp
