@@ -6,6 +6,7 @@ Implementation of Core of Assembly Plan from Observation (APO)
 Currently, I implemented to 
 - formulate the feasible infinitesimul displacement from the contact information (type, contact position, outer normal, etc.)
 - calculate the index of infinitesimul displacement (maintaining, detaching, constraining, restricted DOF in tanslation/rotation)
+- correct vision errors using roughly estimated contact states
 
 ## Requirement
 - CMake
