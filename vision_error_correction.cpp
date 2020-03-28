@@ -10,18 +10,6 @@
 #undef _VC_DEBUG_MODE
 size_t debug_target = 15;
 
-static void PrintContact(const std::vector<ContactElementForErrorCorrection> &contacts)
-{
-	if (contacts.empty()) {
-		std::cout << "No contact" << std::endl;
-	}
-	else {
-		for (size_t i(0); i < contacts.size(); ++i) {
-			std::cout << contacts[i] << std::endl;
-		}
-	}
-}
-
 int main(int argc, char **argv)
 {
 	if (argc != 3) {
@@ -78,7 +66,7 @@ int main(int argc, char **argv)
 		std::cout << "Time: " << time + 1 << std::endl;
 		// vc.SetVerbose(true);
 		std::vector<ContactElementForErrorCorrection> c_state = cc.GetContact();
-		// PrintContact(c_state);
+		// ContactCalculator::PrintContact(c_state);
 		const bool success = vc.Calc(objects[0], objects[1], c_state);
 		std::cout << "Error: " << vc.CalculateMaximumError(objects[0], objects[1], c_state) << std::endl;
 		if (success) {

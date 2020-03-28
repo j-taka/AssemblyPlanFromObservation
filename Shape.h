@@ -43,7 +43,18 @@ public:
 	const Eigen::Vector3d& V(size_t vID) const {
 		return trans_pos[vID];
 	}
+	const std::vector<size_t>& AdjacentEdges(size_t vID) const {
+		return vertices[vID].adjacent_edges;
+	}
 	void Align(const Eigen::Vector3d &v1, const Eigen::Vector3d &v2, double _NEARLY_ZERO = 1.0e-6);
+	const size_t& vIDonE(size_t eID, size_t order) const {
+		if (order == 0) {
+			return edges[eID].v1;
+		}
+		else {
+			return edges[eID].v2;
+		}
+	}
 	const Eigen::Vector3d& VonE(size_t eID, size_t order) const {
 		if (order == 0) {
 			return trans_pos[edges[eID].v1];
@@ -52,13 +63,19 @@ public:
 			return trans_pos[edges[eID].v2];
 		}
 	}
+	const size_t& fIDAdjacentToE(size_t eID, size_t order) const {
+		return edges[eID].adjacent_faces[order];
+	}
+	size_t NumberOfVerticesOnF(size_t fID) const {
+		return faces[fID].boundary_vertices.size();
+	}
  	const Eigen::Vector3d& VonF(size_t fID, size_t order) const {
 		return trans_pos[faces[fID].boundary_vertices[order]];
 	}
 	const Eigen::Vector3d& OuterNormal(size_t fID) const {
 		return trans_norm[fID];
 	}
-	const Eigen::Vector3d &OussideDirectionOfE(size_t eID) const {
+	const Eigen::Vector3d &OutsideDirectionOfE(size_t eID) const {
 		return trans_edge_outside[eID];
 	}
 	VFRelation GetVFRelation(const Eigen::Vector3d &proj_v, size_t fID, double _NEARLY_ZERO = 1.0e-6) const;

@@ -1,7 +1,7 @@
 // InfinitesimulDisplacement.h
 #pragma once
 
-#include "ContactState.h"
+#include "ContactStateForDisplacement.h"
 
 class InfinitesimulDisplacement
 {
@@ -20,16 +20,10 @@ public:
 		singular = src.singular;
 	}
 	// convert
-	void Calculate(size_t objectID, const ContactState &src) {
-		non_singular.clear();
-		singular.clear();
-		for (size_t i(0); i < src.size(); ++i) {
-			Calculate(objectID, src[i]);
-		}
-	}
+	void Calculate(size_t objectID, const ContactStateForDisplacement &src);
 	bool isFeasible(const Screw &disp) const;
 	bool isSingular() const {
-		return (singular.empty());
+		return (!singular.empty());
 	}
 	// 
 	void SetNonSingularTranslationMatrix(Eigen::MatrixXd &dest) const;
@@ -44,5 +38,7 @@ public:
 	friend std::ostream& operator<<(std::ostream &os, const InfinitesimulDisplacement &src);
 private:
 	void Calculate(size_t objectID, const ContactElement &src);
+	void Calculate(size_t objectID, const std::vector<ContactElement> &src);
 	static Screw Coefficient(const Eigen::Vector3d &pos, const Eigen::Vector3d &out_norm);
+	static bool InfinitesimulDisplacement::isSimilar(const Screw &s, const ScrewVector &sv);
 };

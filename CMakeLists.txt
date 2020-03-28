@@ -32,8 +32,8 @@ ADD_EXECUTABLE(
 	APO_Recognition_sample.cpp
 	ContactElement.cpp
 	ContactElement.h
-	ContactState.cpp
-	ContactState.h
+	ContactStateForDisplacement.cpp
+	ContactStateForDisplacement.h
 	InfinitesimulDisplacement.cpp
 	InfinitesimulDisplacement.h
 	DisplacementIndex.cpp
@@ -61,5 +61,33 @@ ADD_EXECUTABLE(
 	VisionErrorCorrector.h
 )
 
+ADD_EXECUTABLE(
+	TaskAnalyzer
+	analyze_task.cpp
+	PoseListFileHandler.cpp
+	PoseListFileHandler.h
+	ShapeParser.cpp
+	ShapeParser.h
+	Shape.cpp
+	Shape.h
+	ContactCalculator.cpp
+	ContactCalculator.h
+	ContactElement.cpp
+	ContactElement.h
+	TaskAnalyzer.cpp
+	TaskAnalyzer.h
+	ContactStateForDisplacement.cpp
+	ContactStateForDisplacement.h
+	InfinitesimulDisplacement.cpp
+	InfinitesimulDisplacement.h
+	DisplacementIndex.cpp
+	DisplacementIndex.h
+	${PCC_PATH}/PCCCalculator.cpp
+	${PCC_PATH}/PCCCalculator.h
+	${PCC_PATH}/Combination.cpp
+	${PCC_PATH}/Combination.h
+)
+
 TARGET_LINK_LIBRARIES(APO_Recognition_sample qhullstatic_r.lib)	
 TARGET_LINK_LIBRARIES(VisionErrorCorrection ${OpenCASCADE_ModelingAlgorithms_LIBRARIES} TKSTEP.lib TKSTEP209.lib TKSTEPAttr.lib TKSTEPBase.lib TKShHealing.lib TKXSBase.lib)
+TARGET_LINK_LIBRARIES(TaskAnalyzer ${OpenCASCADE_ModelingAlgorithms_LIBRARIES} TKSTEP.lib TKSTEP209.lib TKSTEPAttr.lib TKSTEPBase.lib TKShHealing.lib TKXSBase.lib qhullstatic_r.lib)

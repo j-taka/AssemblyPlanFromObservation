@@ -2,24 +2,30 @@
 
 #include "ContactElement.h"
 
-std::ostream& operator<<(std::ostream &ofs, const ContactElementForErrorCorrection &src)
+std::ostream& operator<<(std::ostream &os, const ContactElementBase &src)
 {
 	switch (src.type) {
 	case ContactElementBase::_VF_CONTACT:
-		ofs << "v-f contact:";
+		os << "v-f contact:";
 		break;
 	case ContactElementBase::_EE_CONTACT:
-		ofs << "e-e contact: ";
+		os << "e-e contact: ";
 		break;
 	case ContactElementBase::_VE_CONTACT:
-		ofs << "v-e contact: ";
+		os << "v-e contact: ";
 		break;
 	case ContactElementBase::_VV_CONTACT:
-		ofs << "v-v contact: ";
+		os << "v-v contact: ";
 		break;
 	}
-	ofs << "(" << src.ID1.first << "," << src.ID1.second << ") - (" << src.ID2.first << "," << src.ID2.second << ") (distance: " << src.distance << ")";
-	return ofs;
+	os << "(" << src.ID1.first << "," << src.ID1.second << ") - (" << src.ID2.first << "," << src.ID2.second << ")";
+	return os;
+}
+
+std::ostream& operator<<(std::ostream &os, const ContactElementForErrorCorrection &src)
+{
+	os << static_cast<ContactElementBase>(src) << "(distance: " << src.distance << ")";
+	return os;
 }
 
 ContactElement ContactElement::VFContact(const std::pair<size_t, size_t> &ID1, const std::pair<size_t, size_t> &ID2, const Eigen::Vector3d &contact_position, const Eigen::Vector3d &f_norm)
@@ -60,7 +66,7 @@ ContactElement ContactElement::EEContact(const std::pair<size_t, size_t> &ID1, c
 	return res;
 }
 
-
+#if 0
 // singular contact	element
 ContactElement ContactElement::VEContact(const std::pair<size_t, size_t> &ID1, const std::pair<size_t, size_t> &ID2, const Eigen::Vector3d &contact_position, const Eigen::Vector3d &norm1, const Eigen::Vector3d &norm2)
 {
@@ -107,7 +113,9 @@ ContactElement ContactElement::VVContact(const std::pair<size_t, size_t> &ID1, c
 	}
 	return res;
 }
+#endif
 
+#if 0
 void ContactElement::GetNormalInformation(Eigen::MatrixXd &n1, Eigen::MatrixXd &n2) const
 {
 	assert(type == _VV_CONTACT);
@@ -126,6 +134,7 @@ void ContactElement::GetNormalInformation(Eigen::MatrixXd &n1, Eigen::MatrixXd &
 		n2(r, 2) = parameters[offset]; offset++;
 	}
 }
+#endif
 
 std::ostream& operator<<(std::ostream &os, const ContactElement &src)
 {
@@ -143,6 +152,7 @@ std::ostream& operator<<(std::ostream &os, const ContactElement &src)
 		os << "Direction of Edge of Object " << src.ID1.first + 1 << ": (" << src.parameters[3] << ", " << src.parameters[4] << ", " << src.parameters[5] << ")" << std::endl;
 		os << "Direction of Edge of Object " << src.ID2.first + 1 << ": (" << src.parameters[6] << ", " << src.parameters[7] << ", " << src.parameters[8] << ")" << std::endl;
 		break;
+#if 0
 	case ContactElement::_VE_CONTACT:
 		os << "Vertex " << src.ID1.second + 1 << " of Object " << src.ID1.first + 1 << std::endl;
 		os << "Edge " << src.ID2.second + 1 << " of Object " << src.ID2.first + 1 << std::endl;
@@ -166,6 +176,7 @@ std::ostream& operator<<(std::ostream &os, const ContactElement &src)
 		}
 		break;
 	}
+#endif
 	}
 	return os;
 }

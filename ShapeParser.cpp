@@ -7,7 +7,7 @@
 #include <BRep_Tool.hxx>
 #include <BRepGProp_Face.hxx>
 
-void ShapeParser::Set(const TopoDS_Shape &shape)
+void ShapeParser::Set(const TopoDS_Shape &shape, bool detailed)
 {
 	// vertex
 	VertexIdentification(shape);
@@ -18,6 +18,8 @@ void ShapeParser::Set(const TopoDS_Shape &shape)
 	// convex
 	SetEdgeConvexity(shape);
 	SetVertexConvexity();
+	// adjacency
+	AdjacentEdgesOnVertices();
 	// free memory
 	aTopoV.clear();
 	aTopoE.clear();
@@ -150,9 +152,8 @@ void ShapeParser::FaceIdentification(const TopoDS_Shape &shape)
 void ShapeParser::SetEdgeConvexity(const TopoDS_Shape &shape)
 {
 	// find adjacent faces
-	std::vector<std::vector<size_t> > adjacentFaces(edges.size());
 	for (size_t i(0); i < edges.size(); ++i) {
-		adjacentFaces[i].resize(2, faces.size());
+		edges[i].adjacent_faces.resize(2, faces.size());
 	}
 	size_t i(0);
 	for (TopExp_Explorer ex(shape, TopAbs_FACE); ex.More(); ex.Next(), ++i) {
@@ -166,17 +167,17 @@ void ShapeParser::SetEdgeConvexity(const TopoDS_Shape &shape)
 			std::cout << edges[eID].v1 << "-" << edges[eID].v2 << std::endl;
 #endif
 			if (edges[eID].v1 == faces[i].boundary_vertices[j]) {
-				adjacentFaces[eID][0] = i;
+				edges[eID].adjacent_faces[0] = i;
 			}
 			else {
-				adjacentFaces[eID][1] = i;
+				edges[eID].adjacent_faces[1] = i;
 			}
 		}
 	}
 	for (size_t i(0); i < edges.size(); ++i) {
 		const Eigen::Vector3d ed = vertices[edges[i].v1].pos - vertices[edges[i].v2].pos;
-		const Eigen::Vector3d n1 = faces[adjacentFaces[i][0]].outer_normal;
-		const Eigen::Vector3d n2 = faces[adjacentFaces[i][1]].outer_normal;
+		const Eigen::Vector3d n1 = faces[edges[i].adjacent_faces[0]].outer_normal;
+		const Eigen::Vector3d n2 = faces[edges[i].adjacent_faces[1]].outer_normal;
 		edges[i].convex = (ed.dot(n1.cross(n2)) < 0);
 		edges[i].outer_direction = n1 + n2;
 		edges[i].outer_direction.normalize();
@@ -208,6 +209,17 @@ void ShapeParser::SetVertexConvexity()
 #endif
 }
 
+void ShapeParser::AdjacentEdgesOnVertices()
+{
+	for (size_t i(0); i < vertices.size(); ++i) {
+		vertices[i].adjacent_edges.clear();
+	}
+	for (size_t i(0); i < edges.size(); ++i) {
+		vertices[edges[i].v1].adjacent_edges.push_back(i);
+		vertices[edges[i].v2].adjacent_edges.push_back(i);
+	}
+}
+
 std::ostream& operator<<(std::ostream &os, const ShapeParser &src)
 {
 	os << "Number of vertices: " << src.vertices.size() << std::endl;
@@ -229,3 +241,4 @@ std::ostream& operator<<(std::ostream &os, const ShapeParser &src)
 	}
 	return os;
 }
+

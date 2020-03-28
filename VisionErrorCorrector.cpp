@@ -209,7 +209,7 @@ double VisionErrorCorrector::SetEquationEE(const Shape &e1_shape, const Shape &e
 	Eigen::Vector3d dP = edge2_pos - edge1_pos;
 	Eigen::Vector3d temp_3d_vec = edge1_dic.cross(edge2_dic);
 	// check outside
-	if (temp_3d_vec.dot(e1_shape.OussideDirectionOfE(e1ID)) > 0) {
+	if (temp_3d_vec.dot(e1_shape.OutsideDirectionOfE(e1ID)) > 0) {
 		temp_3d_vec = -temp_3d_vec;
 	}
 	const double length = temp_3d_vec.norm();

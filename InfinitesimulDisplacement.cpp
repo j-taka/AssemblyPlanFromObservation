@@ -2,59 +2,72 @@
 
 #include "InfinitesimulDisplacement.h"
 
+const double _NEARLY_ZERO = 1.0e-6;
+
+void InfinitesimulDisplacement::Calculate(size_t objectID, const ContactStateForDisplacement &src) 
+{
+	non_singular.clear();
+	singular.clear();
+	for (size_t i(0); i < src.elements.size(); ++i) {
+		Calculate(objectID, src.elements[i]);
+	}
+	// singular
+	for (size_t i(0); i < src.singular_elements.size(); ++i) {
+		Calculate(objectID, src.singular_elements[i]);
+	}
+
+}
+
 void InfinitesimulDisplacement::Calculate(size_t objectID, const ContactElement &src) 
 {
-	Eigen::MatrixXd n1, n2;
-	ScrewVector tmp;
 	if (src.FirstElement().first == objectID) {
-		switch (src.ContactType()) {
-		case ContactElement::_VE_CONTACT:
-			tmp.push_back(Coefficient(src.ContactPosition(), src.OuterNormal(0)));
-			tmp.push_back(Coefficient(src.ContactPosition(), src.OuterNormal(1)));
-			singular.push_back(tmp);
-			break;
-		case ContactElement::_VV_CONTACT:
-			src.GetNormalInformation(n1, n2);
-			for (int r(0); r < n1.rows(); ++r) {
-				tmp.push_back(Coefficient(src.ContactPosition(), n1.row(r).transpose()));
-			}
-			for (int r(0); r < n2.rows(); ++r) {
-				tmp.push_back(Coefficient(src.ContactPosition(), -n2.row(r).transpose()));
-			}
-			singular.push_back(tmp);
-			break;
-		default:
-			non_singular.push_back(Coefficient(src.ContactPosition(), src.OuterNormal()));
-			break;
-		}
+		non_singular.push_back(Coefficient(src.ContactPosition(), src.OuterNormal()));
 	}
 	if (src.SecondElement().first == objectID) {
-		switch (src.ContactType()) {
-		case ContactElement::_VE_CONTACT:
-			tmp.push_back(Coefficient(src.ContactPosition(), -src.OuterNormal(0)));
-			tmp.push_back(Coefficient(src.ContactPosition(), -src.OuterNormal(1)));
-			singular.push_back(tmp);
-			break;
-		case ContactElement::_VV_CONTACT:
-			src.GetNormalInformation(n1, n2);
-			for (int r(0); r < n1.rows(); ++r) {
-				tmp.push_back(Coefficient(src.ContactPosition(), -n1.row(r).transpose()));
+		non_singular.push_back(Coefficient(src.ContactPosition(), -src.OuterNormal()));
+	}
+}
+
+void InfinitesimulDisplacement::Calculate(size_t objectID, const std::vector<ContactElement> &src)
+{
+	ScrewVector tmp;
+	for (size_t i(0); i < src.size(); ++i) {
+		if (src[i].FirstElement().first == objectID) {
+			const Screw s = Coefficient(src[i].ContactPosition(), src[i].OuterNormal());
+			if (!isSimilar(s, tmp)) {
+				tmp.push_back(s);
 			}
-			for (int r(0); r < n2.rows(); ++r) {
-				tmp.push_back(Coefficient(src.ContactPosition(), n2.row(r).transpose()));
+		}
+		if (src[i].SecondElement().first == objectID) {
+			const Screw s = Coefficient(src[i].ContactPosition(), -src[i].OuterNormal());
+			if (!isSimilar(s, tmp)) {
+				tmp.push_back(s);
 			}
-			singular.push_back(tmp);
-			break;
-		default:
-			non_singular.push_back(Coefficient(src.ContactPosition(), -src.OuterNormal()));
-			break;
 		}
 	}
+	if (tmp.empty()) {
+		return;
+	}
+	if (tmp.size() == 1) {
+		non_singular.push_back(tmp[0]);
+	}
+	else {
+		singular.push_back(tmp);
+	}
+}
+
+bool InfinitesimulDisplacement::isSimilar(const Screw &s, const ScrewVector &sv)
+{
+	for (size_t i(0); i < sv.size(); ++i) {
+		if (s.dot(sv[i]) / s.norm() / sv[i].norm() > 1 - _NEARLY_ZERO) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool InfinitesimulDisplacement::isFeasible(const Screw &disp) const
 {
-	const double _NEARLY_ZERO = 1.0e-6;
 	for (size_t i(0); i < non_singular.size(); ++i) {
 		if (non_singular[i].dot(disp) < -_NEARLY_ZERO) {
 			return false;

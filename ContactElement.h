@@ -36,9 +36,20 @@ public:
 	Type ContactType() const {
 		return type;
 	}
+#if 0
 	bool isSingular() const {
 		return (type == _VE_CONTACT || type == _VV_CONTACT);
 	}
+#endif
+	bool operator==(const ContactElementBase &src) const {
+		if (type != src.type) { return false;  }
+		if (ID1 == src.ID1 && ID2 == src.ID2) { return true; }
+		if (type == _EE_CONTACT) {
+			if (ID1 == src.ID2 && ID2 == src.ID1) { return true; }
+		}
+		return false;
+	}
+	friend std::ostream& operator<<(std::ostream &os, const ContactElementBase &src);
 };
 
 class ContactElement : public ContactElementBase
@@ -83,8 +94,10 @@ public:
 	static ContactElement VFContact(const std::pair<size_t, size_t> &ID1, const std::pair<size_t, size_t> &ID2, const Eigen::Vector3d &contact_position, const Eigen::Vector3d &f_norm);
 	static ContactElement EEContact(const std::pair<size_t, size_t> &ID1, const std::pair<size_t, size_t> &ID2, const Eigen::Vector3d &contact_position, const Eigen::Vector3d &e1_direction, const Eigen::Vector3d &e2_direction);
 	// singular contact	element
+#if 0
 	static ContactElement VEContact(const std::pair<size_t, size_t> &ID1, const std::pair<size_t, size_t> &ID2, const Eigen::Vector3d &contact_position, const Eigen::Vector3d &norm1, const Eigen::Vector3d &norm2);
 	static ContactElement VVContact(const std::pair<size_t, size_t> &ID1, const std::pair<size_t, size_t> &ID2, const Eigen::Vector3d &contact_position, const Normals &norm1, const Normals &norm2);
+#endif
 	friend std::ostream& operator<<(std::ostream &os, const ContactElement &src);
 };
 
@@ -101,6 +114,10 @@ public:
 		ID2 = _ID2;
 		type = _type;
 		distance = _distance;
+	}
+	// constructor
+	ContactElementForErrorCorrection(const ContactElementBase &src) : ContactElementBase(src) {
+		distance = 0.0;
 	}
 	// copy constructor
 	ContactElementForErrorCorrection(const ContactElementForErrorCorrection &src) : ContactElementBase(src) {

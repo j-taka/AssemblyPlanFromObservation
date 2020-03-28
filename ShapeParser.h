@@ -13,11 +13,13 @@ class ShapeParser
 public:
 	struct Vertex {
 		Eigen::Vector3d pos;
+		std::vector<size_t> adjacent_edges;
 		bool convex;
 	};
 	struct Edge {
 		size_t v1, v2;
 		Eigen::Vector3d outer_direction;
+		std::vector<size_t> adjacent_faces;
 		bool convex;
 	};
 	struct Face {
@@ -31,7 +33,7 @@ protected:
 	std::vector<Edge> edges;
 	std::vector<Face> faces;
 public:
-	void Set(const TopoDS_Shape &shape);
+	void Set(const TopoDS_Shape &shape, bool detailed = true);
 	size_t v_size() const {
 		return vertices.size();
 	}
@@ -59,4 +61,6 @@ private:
 	void SetVertexConvexity();
 	size_t GetVertexID(const TopoDS_Vertex &vertex) const;
 	size_t GetEdgeID(const TopoDS_Edge &edge) const;
+
+	void AdjacentEdgesOnVertices();
 };

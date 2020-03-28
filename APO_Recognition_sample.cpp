@@ -17,7 +17,7 @@ static std::string answer(bool src)
 
 int main(int argc, char **argv)
 {
-	ContactState c_state;
+	ContactStateForDisplacement c_state;
 	c_state.AddContact(ContactElement::VFContact(O1_V1, O2_F1, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1)));
 	c_state.AddContact(ContactElement::VFContact(O1_V2, O2_F1, Eigen::Vector3d(1, 0, 0), Eigen::Vector3d(0, 0, 1)));
 	// print

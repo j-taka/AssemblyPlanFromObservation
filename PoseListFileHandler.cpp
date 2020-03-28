@@ -62,6 +62,7 @@ int PoseListFileHandler::Save(const std::string &file)
 		}
 		ofs << std::endl;
 		ofs << "No of Scenes: " << poses.size() << std::endl;
+		ofs << std::setprecision(12); 
 		for (size_t i(0); i < poses.size(); ++i) {
 			for (size_t j(0); j < poses[i].size(); ++j) {
 				ofs << (j == 0 ? "2 " : "0 ");
