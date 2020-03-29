@@ -24,7 +24,7 @@ Currently, I implemented to
 - run APO_Recognition_sample.exe (calculate motion DOFs)
 - run VisionErrorCorrection.exe error_correct.pose.list peg_in_hole.pose.list (vision error correction) and open error_correct_pose.list by [APOViewer](https://github.com/j-taka/APOViewer)
   - Necessary files (peg.step, hole.step, peg_in_hole.pose.list) are included in APOViewer
-- run TaskAnalyzer.exe error_correct.pose.list and you can see the list of the contact states and motion DOFs.
+- run TaskAnalyzer.exe state.pose.list error_correct.pose.list. You can see the list of the contact states and motion DOFs on the terminal and see the actual situations of the states using [APOViewer](https://github.com/j-taka/APOViewer)
 
 ## Author
 Jun Takamatsu j-taka@is.naist.jp
