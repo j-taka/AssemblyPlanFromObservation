@@ -11,7 +11,7 @@ class TaskAnalyzer
 {
 public:
 	typedef Eigen::Matrix<double, 3, 4> Pose;
-private:
+public:
 	struct ContactState
 	{
 		std::vector<Pose> poses; 
@@ -36,6 +36,7 @@ private:
 			return true;
 		}
 	};
+private:
 	std::vector<ContactState> contact_states;
 public:
 	TaskAnalyzer(){}
@@ -46,7 +47,10 @@ public:
 	void AppendContactState(const std::vector<Shape> &objects, const ContactCalculator::ContactState &c_state);
 	
 	void Analyze(Shape &moving_object, Shape &fixed_object);
-
+	// access result
+	const ContactState& operator[](size_t src) const {
+		return contact_states[src];
+	}
 	friend std::ostream& operator<<(std::ostream &os, const TaskAnalyzer &src);
 private:
 	static Pose GetPose(const Shape &object) {

@@ -46,7 +46,6 @@ public:
 	void EraseIthPose(const size_t time) {
 		poses.erase(poses.begin() + time);
 	}
-	// for debugging 
 	void SetPoses(const std::vector<Eigen::Matrix<double, 3, 4> > &poses, const Eigen::Matrix3d &R, const Eigen::Vector3d &t);
 private: 
 	int LoadModels();

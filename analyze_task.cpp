@@ -9,8 +9,8 @@
 
 int main(int argc, char **argv)
 {
-	if (argc != 2) {
-		std::cerr << argv[0] << " (input pose list file)" << std::endl;
+	if (argc != 3) {
+		std::cerr << argv[0] << " (output pose list file) (input pose list file)" << std::endl;
 		return -1;
 	}
 	PoseListFileHandler plHandler;
@@ -52,4 +52,15 @@ int main(int argc, char **argv)
 	}
 	ta.Analyze(objects[0], objects[1]);
 	std::cout << ta << std::endl;
+	// save
+	PoseListFileHandler save(plHandler);
+	std::vector<Eigen::Matrix<double, 3, 4> > poses(ta.NumberOfStates());
+	for (size_t i(0); i < ta.NumberOfStates(); ++i) {
+		poses[i] = ta[i].poses[0];
+	}
+	save.SetPoses(poses, objects[1].Rot(), objects[1].Trans());
+	if (save.Save(argv[1]) != 0) {
+		std::cerr << "Cannot save: " << argv[1] << std::endl;
+	}
+	return 0;
 }
