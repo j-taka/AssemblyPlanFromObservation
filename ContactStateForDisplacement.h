@@ -7,6 +7,7 @@
 class ContactStateForDisplacement
 {
 	friend class InfinitesimulDisplacement;
+	friend class DisplacementIndex;
 private:
 	std::vector<ContactElement> elements;
 	std::vector<std::vector<ContactElement> > singular_elements;

@@ -32,6 +32,14 @@ void TaskAnalyzer::Analyze(Shape &moving_object, Shape &fixed_object)
 		// 
 		contact_states[i].disp.Calculate(0, cs);
 		contact_states[i].index.Calculate(contact_states[i].disp);
+		if (contact_states[i].index.RotationRestrictedDOF() == 1) {
+			// special case
+			if (!contact_states[i].index.SetPossibleAxis(cs)) {
+				std::cerr << "Cannot handle this case in the current implementation" << std::endl;
+				exit(-1);
+			}
+			std::cout << contact_states[i].index.PossibleAxis() << std::endl;
+		}
 	}
 }
 

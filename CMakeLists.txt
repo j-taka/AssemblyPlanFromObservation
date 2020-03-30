@@ -17,6 +17,10 @@ link_directories(${QHULL_PATH}/lib)
 set(PCC_PATH ../PolyhedralConvexCones)
 include_directories(${PCC_PATH})
 
+#Utils
+set(UTILS_PATH ../UtilsForEigen)
+include_directories(${UTILS_PATH})
+
 # tbb
 set(TBB_PATH "C:/OpenCASCADE-7.3.0-vc14-64/tbb_2017.0.100")
 link_directories(${TBB_PATH}/lib/intel64/vc10)
@@ -88,6 +92,39 @@ ADD_EXECUTABLE(
 	${PCC_PATH}/Combination.h
 )
 
+ADD_EXECUTABLE(
+	RandomPoseGenerator
+	random_pose_generation.cpp
+	PoseListFileHandler.cpp
+	PoseListFileHandler.h
+	ShapeParser.cpp
+	ShapeParser.h
+	Shape.cpp
+	Shape.h
+	ContactCalculator.cpp
+	ContactCalculator.h
+	ContactElement.cpp
+	ContactElement.h
+	TaskAnalyzer.cpp
+	TaskAnalyzer.h
+	MotionGenerator.cpp
+	MotionGenerator.h
+	ContactStateForDisplacement.cpp
+	ContactStateForDisplacement.h
+	InfinitesimulDisplacement.cpp
+	InfinitesimulDisplacement.h
+	DisplacementIndex.cpp
+	DisplacementIndex.h
+	VisionErrorCorrector.cpp
+	VisionErrorCorrector.h
+	${PCC_PATH}/PCCCalculator.cpp
+	${PCC_PATH}/PCCCalculator.h
+	${PCC_PATH}/Combination.cpp
+	${PCC_PATH}/Combination.h
+	${UTILS_PATH}/s2rand.h
+)
+
 TARGET_LINK_LIBRARIES(APO_Recognition_sample qhullstatic_r.lib)	
 TARGET_LINK_LIBRARIES(VisionErrorCorrection ${OpenCASCADE_ModelingAlgorithms_LIBRARIES} TKSTEP.lib TKSTEP209.lib TKSTEPAttr.lib TKSTEPBase.lib TKShHealing.lib TKXSBase.lib)
 TARGET_LINK_LIBRARIES(TaskAnalyzer ${OpenCASCADE_ModelingAlgorithms_LIBRARIES} TKSTEP.lib TKSTEP209.lib TKSTEPAttr.lib TKSTEPBase.lib TKShHealing.lib TKXSBase.lib qhullstatic_r.lib)
+TARGET_LINK_LIBRARIES(RandomPoseGenerator ${OpenCASCADE_ModelingAlgorithms_LIBRARIES} TKSTEP.lib TKSTEP209.lib TKSTEPAttr.lib TKSTEPBase.lib TKShHealing.lib TKXSBase.lib qhullstatic_r.lib)

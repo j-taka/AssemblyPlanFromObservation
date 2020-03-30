@@ -54,6 +54,23 @@ bool VisionErrorCorrector::Calc(Shape &moving_object, Shape &fixed_object, Conta
 	return false;
 }
 
+void VisionErrorCorrector::Translation(Shape &moving_object, Shape &fixed_object, const ContactState &c_state)
+{
+	if (c_state.empty()) {
+		return; // nothing to do 
+	}
+	// center 
+	CalcCenter(moving_object, fixed_object, c_state);
+	// error correction only using translation
+	for (size_t i(0); i < c_state.size(); ++i) {
+		SetEquation(moving_object, fixed_object, c_state[i]);
+	}
+	Eigen::Vector3d dt;
+	SolveEquation(dt);
+	moving_object.SetTransformation(moving_object.Rot(), moving_object.Trans() + dt);
+}
+
+
 bool VisionErrorCorrector::CalcEach(Shape &moving_object, Shape &fixed_object, const ContactState &c_state)
 {
 #ifdef _VC_DEBUG_MODE
@@ -272,6 +289,7 @@ void VisionErrorCorrector::SolveEquation(Eigen::Vector3d &dt)
 	// 
 	Eigen::VectorXd x = PseudoInverse(svd) *b;
 	dt = Eigen::Vector3d(x[0], x[1], x[2]);
+	// std::cout << (A * x - b).transpose() << std::endl;
 }
 
 double VisionErrorCorrector::CalcError(const Shape &moving_object, const Shape &fixed_object, const ContactElementForErrorCorrection &c_element) const

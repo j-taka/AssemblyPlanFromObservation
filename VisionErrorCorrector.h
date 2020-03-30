@@ -32,8 +32,8 @@ public:
 	// constructor
 	VisionErrorCorrector() : tolerance(1.0e-5), verbose(false), _MAX_LOOP(40), _MAX_NUMBER_OF_REMOVE_ELEMENT(2), _MIN_TRANS_DIST(10) {}
 	bool Calc(Shape &moving_object, Shape &fixed_object, ContactState &c_state);
+	void Translation(Shape &moving_object, Shape &fixed_object, const ContactState &c_state);
 	double CalculateMaximumError(const Shape &moving_object, const Shape &fixed_object, const ContactState &c_state);
-
 	void SetVerbose(bool src) {
 		verbose = src;
 	}
