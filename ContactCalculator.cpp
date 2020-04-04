@@ -152,30 +152,65 @@ double ContactCalculator::DistanceBetweenNonParallelEdges(size_t e1, size_t e2, 
 // remove impossible contact elements due to the penetration
 void ContactCalculator::RemoveImpossibleContact(const Shape &moving_object, const Shape &fixed_object)
 {
+	const double _NEARLY_ZERO = 1.0e-6;
 	for (int i(0); i < contact_elements.size(); ++i) {
 		switch (contact_elements[i].ContactType()) {
 		case ContactElementBase::_VF_CONTACT:
+		{
+			const size_t vID = contact_elements[i].FirstElement().second;
+			const size_t fID = contact_elements[i].SecondElement().second;
 			if (contact_elements[i].FirstElement().first == 0) {
-				if (isImpossibleContactVF(contact_elements[i].FirstElement().second, contact_elements[i].SecondElement().second, moving_object, fixed_object)) {
+				if (isImpossibleContact(vID, moving_object, fixed_object.OuterNormal(fID))) {
 					contact_elements.erase(contact_elements.begin() + i);
 					--i;
 				}
 			}
 			else {
-				if (isImpossibleContactVF(contact_elements[i].FirstElement().second, contact_elements[i].SecondElement().second, fixed_object, moving_object)) {
+				if (isImpossibleContact(vID, fixed_object, moving_object.OuterNormal(fID))) {
 					contact_elements.erase(contact_elements.begin() + i);
 					--i;
 				}
 			}
 			break;
+		}
 		case ContactElementBase::_EE_CONTACT:
+		{
 			assert(contact_elements[i].FirstElement().first == 0);
-			if (isImpossibleContactEE(contact_elements[i].FirstElement().second, contact_elements[i].SecondElement().second, moving_object, fixed_object) ||
-				isImpossibleContactEE(contact_elements[i].SecondElement().second, contact_elements[i].FirstElement().second, fixed_object, moving_object)) {
-				contact_elements.erase(contact_elements.begin() + i);
-				--i;
+			// find contact position
+			Eigen::Vector3d pos;
+			const size_t e1 = contact_elements[i].FirstElement().second;
+			const size_t e2 = contact_elements[i].SecondElement().second;
+			if (ContactPositionEE(pos, e1, e2, moving_object, fixed_object)) {
+				break; // parallel is always possbile
+			}
+			const Eigen::Vector3d e1_dic = moving_object.VonE(e1, 1) - moving_object.VonE(e1, 0);
+			const Eigen::Vector3d e2_dic = fixed_object.VonE(e2, 1) - fixed_object.VonE(e2, 0);
+			const Eigen::Vector3d normal = e1_dic.cross(e2_dic).normalized();
+			const Eigen::Vector3d outer_normal_e1 = (normal.dot(moving_object.OutsideDirectionOfE(e1)) > 0 ? normal : -normal);
+			const Eigen::Vector3d outer_normal_e2 = (normal.dot(fixed_object.OutsideDirectionOfE(e2)) > 0 ? normal : -normal);
+			size_t j;
+			for (j = 0; j < 2; ++j) {
+				if ((moving_object.VonE(e1, j) - pos).norm() < _NEARLY_ZERO) {
+					if (isImpossibleContact(moving_object.vIDonE(e1, j), moving_object, outer_normal_e2)) {
+						contact_elements.erase(contact_elements.begin() + i);
+						--i;
+						break;
+					}
+				}
+			}
+			if (j == 2) {
+				for (j = 0; j < 2; ++j) {
+					if ((fixed_object.VonE(e2, j) - pos).norm() < _NEARLY_ZERO) {
+						if (isImpossibleContact(fixed_object.vIDonE(e2, j), fixed_object, outer_normal_e1)) {
+							contact_elements.erase(contact_elements.begin() + i);
+							--i;
+							break;
+						}
+					}
+				}
 			}
 			break;
+		}
 		default:
 			std::cerr << "Include some bugs" << std::endl;
 			exit(-1);
@@ -194,6 +229,22 @@ static double proper_trifunc(double src)
 	return src;
 }
 
+bool ContactCalculator::isImpossibleContact(size_t vID, const Shape &v_shape, const Eigen::Vector3d &outer_normal, const double ang_th) const
+{
+	for (size_t i(0); i < v_shape.AdjacentEdges(vID).size(); ++i) {
+		const size_t eID = v_shape.AdjacentEdges(vID)[i];
+		const Eigen::Vector3d temp = (v_shape.vIDonE(eID, 0) == vID ? v_shape.VonE(eID, 1) - v_shape.VonE(eID, 0) : v_shape.VonE(eID, 0) - v_shape.VonE(eID, 1));
+		double prod = outer_normal.dot(temp);
+		prod /= temp.norm();
+		const double ang = acos(proper_trifunc(prod));
+		if (ang > M_PI / 2.0 + ang_th) {
+			return true; // penetrate
+		}
+	}
+	return false;
+}
+
+#if 0
 bool ContactCalculator::isImpossibleContactVF(size_t vID, size_t fID, const Shape &v_shape, const Shape &f_shape, const double ang_th) const
 {
 	for (size_t i(0); i < v_shape.AdjacentEdges(vID).size(); ++i) {
@@ -240,6 +291,7 @@ bool ContactCalculator::isImpossibleContactEE(size_t e1, size_t e2, const Shape 
 	}
 	return true;
 }
+#endif
 
 // find singular contact
 void ContactCalculator::SearchSingularContact(ContactStateForDisplacement &cs, const Shape &moving_object, const Shape &fixed_object)

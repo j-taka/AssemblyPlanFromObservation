@@ -8,7 +8,7 @@ class InfinitesimulDisplacement
 public:
 	typedef Eigen::Matrix<double, 6, 1> Screw;
 	typedef std::vector<Screw, Eigen::aligned_allocator<Screw> > ScrewVector;
-private:
+protected:
 	ScrewVector non_singular;
 	std::vector<ScrewVector> singular;
 public:

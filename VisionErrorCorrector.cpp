@@ -68,6 +68,7 @@ void VisionErrorCorrector::Translation(Shape &moving_object, Shape &fixed_object
 	Eigen::Vector3d dt;
 	SolveEquation(dt);
 	moving_object.SetTransformation(moving_object.Rot(), moving_object.Trans() + dt);
+	// std::cout << CalculateMaximumError(moving_object, fixed_object, c_state) << std::endl;
 }
 
 
@@ -454,8 +455,9 @@ Eigen::Vector3d VisionErrorCorrector::OrthogonalDirection(const Shape &e_shape, 
 Eigen::MatrixXd VisionErrorCorrector::PseudoInverse(const Eigen::JacobiSVD<Eigen::MatrixXd> &svd)
 {
 	const double sig_max = svd.singularValues()[0];
-	const double sig_thresh = sig_max * _NEARLY_ZERO;
+	const double sig_thresh = sig_max * 1.0e-4; // _NEARLY_ZERO;
 	Eigen::VectorXd inv_sig = svd.singularValues();
+	// std::cout << inv_sig.transpose() << std::endl;
 	for (int i(0); i < inv_sig.size(); ++i) {
 		if (inv_sig[i] < sig_thresh) {
 			inv_sig[i] = 0;

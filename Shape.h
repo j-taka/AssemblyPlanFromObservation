@@ -87,5 +87,5 @@ private:
 	// 
 	static bool isOnEdge(const Eigen::Vector3d &proj_v, const Eigen::Vector3d &p1, const Eigen::Vector3d &p2, double _NEARLY_ZERO = 1.0e-6);
 
-	static void RemoveSmallerValues(Eigen::Matrix3d &R, double smaller_value = 1.0e-3);
+	static void RemoveSmallerValues(Eigen::Matrix3d &R, double smaller_value = 1.0e-6);
 };

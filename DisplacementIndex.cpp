@@ -137,7 +137,6 @@ Eigen::MatrixXd DisplacementIndex::AxisRestrictionOne() const
 	int max_ID(0);
 	for (int i(0); i < ar_disp.rows(); ++i) {
 		Eigen::VectorXd tmp = ar_disp.row(i).transpose();
-		std::cout << tmp.transpose() << std::endl;
 		tmp.normalize();
 		if (tmp.block(0, 0, 3, 1).norm() > max_val) {
 			max_val = tmp.block(0, 0, 3, 1).norm();
@@ -169,30 +168,29 @@ Eigen::MatrixXd DisplacementIndex::AxisRestrictionTwo() const
 	return eig.eigenvectors().block(0, 1, 3, 2).transpose();
 }
 
-bool DisplacementIndex::SetPossibleAxis(const ContactStateForDisplacement &c_state)
+int DisplacementIndex::SetPossibleAxis(const ContactStateForDisplacement &c_state)
 {
 	bool check(false);
 	int f_objectID(0);
-	Eigen::Vector3d outer_normal;
 	// std::cout << c_state << std::endl;
 	// pattern 1 (multiple vf's)
-	if (CheckPattern1(c_state, 0)) { return true; }
-	if (CheckPattern1(c_state, 1)) { return true; }
+	if (CheckPattern1(c_state, 0)) { return 0; }
+	if (CheckPattern1(c_state, 1)) { return 0; }
 	// pattern 2 
-	// if (CheckPattern2(c_state, 0)) { return true; }
-	return false;
+	if (CheckPattern2(c_state)) { return 1; }
+	return -1;
 }
 
 // more than one vf's, no fv, contact positions on the line
-bool DisplacementIndex::CheckPattern1(const ContactStateForDisplacement &c_state, size_t target_objectID)
+bool DisplacementIndex::CheckPattern1(const ContactStateForDisplacement &c_state, size_t _target_objectID)
 {
 	size_t count(0);
 	Eigen::Vector3d outer_normal;
-	if (!isOnlyVFsORFVs(count, outer_normal, c_state.elements, target_objectID)) {
+	if (!isOnlyVFsORFVs(count, outer_normal, c_state.elements, _target_objectID)) {
 		return false;
 	}
 	for (size_t i(0); i < c_state.singular_elements.size(); ++i) {
-		if (!isOnlyVFsORFVs(count, outer_normal, c_state.singular_elements[i], target_objectID)) {
+		if (!isOnlyVFsORFVs(count, outer_normal, c_state.singular_elements[i], _target_objectID)) {
 			return false;
 		}
 	}
@@ -212,7 +210,8 @@ bool DisplacementIndex::CheckPattern1(const ContactStateForDisplacement &c_state
 		return false;
 	}
 	// set
-	if (target_objectID == 0) {
+	target_objectID = _target_objectID;
+	if (_target_objectID == 0) {
 		rr_disp.row(0) = outer_normal.transpose();
 		rr_disp.row(1) = direction.transpose();
 	}
@@ -286,6 +285,38 @@ bool DisplacementIndex::arePointsOnTheLine(Eigen::Vector3d &direction, const Con
 	}
 	direction = eig.eigenvectors().block(0, 2, 3, 1);
 	return true;
+}
+
+bool DisplacementIndex::CheckPattern2(const ContactStateForDisplacement &c_state)
+{
+	const Eigen::Vector3d outer_normal = GetOuterNormal(c_state);
+	if (!isOuterNormalSame(outer_normal, c_state.elements)) {
+		return false;
+	}
+	for (size_t i(0); i < c_state.singular_elements.size(); ++i) {
+		if (!isOuterNormalSame(outer_normal, c_state.elements)) {
+			return false;
+		}
+	}
+	Eigen::Vector3d direction;
+	if (!arePointsOnTheLine(direction, c_state)) {
+		return false;
+	}
+	// return only candidate
+	target_objectID = 0; 
+	rr_disp.row(0) = outer_normal.transpose();
+	rr_disp.row(1) = direction.transpose();
+	return true;
+}
+
+Eigen::Vector3d DisplacementIndex::GetOuterNormal(const ContactStateForDisplacement &c_state) const
+{
+	if (c_state.elements.empty()) {
+		return c_state.singular_elements[0][0].OuterNormal();
+	}
+	else {
+		return c_state.elements[0].OuterNormal();
+	}
 }
 
 std::ostream& operator<<(std::ostream &os, const DisplacementIndex &src)

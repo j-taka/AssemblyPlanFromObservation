@@ -59,8 +59,14 @@ int main(int argc, char **argv)
 	// 
 	MotionGenerator mg;
 	std::vector<TaskAnalyzer::Pose> poses(NUMBER_OF_SAMPLE);
+	VisionErrorCorrector vc;
+	VisionErrorCorrector::ContactState cs;
+	for (size_t i(0); i < ta[0].contact_elements.size(); ++i) {
+		cs.push_back(ta[0].contact_elements[i]);
+	}
 	for (int i(0); i < NUMBER_OF_SAMPLE; ++i) {
 		mg.RandomPoseGeneration(poses[i], objects[0], objects[1], ta[0]);
+		// std::cout << vc.CalculateMaximumError(objects[0], objects[1], cs) << std::endl;
 	}
 	// save
 	PoseListFileHandler save(plHandler);

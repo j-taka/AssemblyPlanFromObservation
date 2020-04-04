@@ -44,8 +44,11 @@ private:
 	double DistanceBetweenNonParallelEdges(size_t e1, size_t e2, const Shape &e1_shape, const Shape &e2_shape);
 
 	void RemoveImpossibleContact(const Shape &moving_object, const Shape &fixed_object);
+	bool isImpossibleContact(size_t vID, const Shape &v_shape, const Eigen::Vector3d &outer_normal, const double ang_th = 1.0e-5) const;
+#if 0
 	bool isImpossibleContactVF(size_t vID, size_t fID, const Shape &v_shape, const Shape &f_shape, const double ang_th = 1.0e-5) const;
 	bool isImpossibleContactEE(size_t e1, size_t e2, const Shape &e1_shape, const Shape &e2_shape, const double ang_th = 1.0e-5) const;
+#endif
 
 	void SearchSingularContact(ContactStateForDisplacement &cs, const Shape &moving_object, const Shape &fixed_object);
 	void CalculateContactInformation(std::vector<ContactInfo> &c_info, const Shape &moving_object, const Shape &fixed_object) const;

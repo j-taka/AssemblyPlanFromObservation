@@ -8,6 +8,13 @@ set(EIGEN3_INCLUDE_DIR $ENV{Eigen3_DIR})
 FIND_PACKAGE(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
+#boost
+set(Boost_INCLUDE_DIR $ENV{Boost_INCLUDE_DIR})
+set(Boost_LIBRARY_DIR $ENV{Boost_LIBRARY_DIR})
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
+link_directories(${Boost_LIBRARY_DIR})
+
 #qhull
 set(QHULL_PATH "C:/Program Files/qhull")
 include_directories(${QHULL_PATH}/include)
@@ -86,6 +93,8 @@ ADD_EXECUTABLE(
 	InfinitesimulDisplacement.h
 	DisplacementIndex.cpp
 	DisplacementIndex.h
+	VisionErrorCorrector.cpp
+	VisionErrorCorrector.h
 	${PCC_PATH}/PCCCalculator.cpp
 	${PCC_PATH}/PCCCalculator.h
 	${PCC_PATH}/Combination.cpp
@@ -124,7 +133,40 @@ ADD_EXECUTABLE(
 	${UTILS_PATH}/s2rand.h
 )
 
+ADD_EXECUTABLE(
+	MotionGenerationFromStateTransitions
+	generate_motion.cpp
+	PoseListFileHandler.cpp
+	PoseListFileHandler.h
+	ShapeParser.cpp
+	ShapeParser.h
+	Shape.cpp
+	Shape.h
+	ContactCalculator.cpp
+	ContactCalculator.h
+	ContactElement.cpp
+	ContactElement.h
+	TaskAnalyzer.cpp
+	TaskAnalyzer.h
+	MotionGenerator.cpp
+	MotionGenerator.h
+	ContactStateForDisplacement.cpp
+	ContactStateForDisplacement.h
+	InfinitesimulDisplacement.cpp
+	InfinitesimulDisplacement.h
+	DisplacementIndex.cpp
+	DisplacementIndex.h
+	VisionErrorCorrector.cpp
+	VisionErrorCorrector.h
+	${PCC_PATH}/PCCCalculator.cpp
+	${PCC_PATH}/PCCCalculator.h
+	${PCC_PATH}/Combination.cpp
+	${PCC_PATH}/Combination.h
+	${UTILS_PATH}/s2rand.h
+)
+
 TARGET_LINK_LIBRARIES(APO_Recognition_sample qhullstatic_r.lib)	
 TARGET_LINK_LIBRARIES(VisionErrorCorrection ${OpenCASCADE_ModelingAlgorithms_LIBRARIES} TKSTEP.lib TKSTEP209.lib TKSTEPAttr.lib TKSTEPBase.lib TKShHealing.lib TKXSBase.lib)
 TARGET_LINK_LIBRARIES(TaskAnalyzer ${OpenCASCADE_ModelingAlgorithms_LIBRARIES} TKSTEP.lib TKSTEP209.lib TKSTEPAttr.lib TKSTEPBase.lib TKShHealing.lib TKXSBase.lib qhullstatic_r.lib)
 TARGET_LINK_LIBRARIES(RandomPoseGenerator ${OpenCASCADE_ModelingAlgorithms_LIBRARIES} TKSTEP.lib TKSTEP209.lib TKSTEPAttr.lib TKSTEPBase.lib TKShHealing.lib TKXSBase.lib qhullstatic_r.lib)
+TARGET_LINK_LIBRARIES(MotionGenerationFromStateTransitions ${OpenCASCADE_ModelingAlgorithms_LIBRARIES} TKSTEP.lib TKSTEP209.lib TKSTEPAttr.lib TKSTEPBase.lib TKShHealing.lib TKXSBase.lib qhullstatic_r.lib)

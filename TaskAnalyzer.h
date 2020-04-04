@@ -6,6 +6,7 @@
 #include "Shape.h"
 #include "InfinitesimulDisplacement.h"
 #include "DisplacementIndex.h"
+#include "VisionErrorCorrector.h"
 
 class TaskAnalyzer
 {
@@ -46,13 +47,19 @@ public:
 	}
 	void AppendContactState(const std::vector<Shape> &objects, const ContactCalculator::ContactState &c_state);
 	
+	void SetPoseOfFixedObject(const Eigen::Matrix3d &R, const Eigen::Vector3d &t);
+
 	void Analyze(Shape &moving_object, Shape &fixed_object);
+	//
+	static void RecalculateContactState(ContactState &c_state, Shape &moving_object, Shape &fixed_object);
 	// access result
 	const ContactState& operator[](size_t src) const {
 		return contact_states[src];
 	}
+	static void SetContactElements(VisionErrorCorrector::ContactState &vc_cs, const ContactState &c_state);
 	friend std::ostream& operator<<(std::ostream &os, const TaskAnalyzer &src);
 private:
+	static void FurtherAnalysis(ContactState &c_state, Shape &moving_object, Shape &fixed_object);
 	static Pose GetPose(const Shape &object) {
 		Pose dest;
 		dest.block(0, 0, 3, 3) = object.Rot();

@@ -47,7 +47,6 @@ int main(int argc, char **argv)
 		}
 		cc.Calc(objects[0], objects[1]);
 		cc.DetailedAnalysis(objects[0], objects[1]);
-		// 
 		ta.AppendContactState(objects, cc.GetContact());
 	}
 	ta.Analyze(objects[0], objects[1]);
